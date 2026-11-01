@@ -15,6 +15,7 @@ Run it with `./ganjine` from the repo root, on Node 23.6+ with no build step. `g
 - Reactions: `agents/local/reactions.json` lists `{ kind, tag?, run }`. `./ganjine react` runs each fixed command when its record kind commits, and `up` starts it.
 - Drafts: `adr/0009`. `./ganjine page draft`, `finalize`, `discard`. Previews live at `/drafts/<address>`.
 - Live: `/events` for the face, `./ganjine watch` for agents (`adr/0007`).
+- Charts and forecasts: `docs/charts.md`, `docs/forecasting.md`. `./ganjine series put` stores a series and its forecast.
 - Migrations are plain SQL in `migrations/`, applied once each in name order.
 
 **No domain knowledge.** Nothing in this folder knows what a bond, a portfolio or a market is.

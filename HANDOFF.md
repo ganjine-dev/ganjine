@@ -188,6 +188,8 @@ Agents produce page content; the face renders it. The contract must be:
 - Stable enough that old versions still render a year later.
 - Simple enough that an agent can write it without a build step.
 
+Anything over time is a `timeline` block, drawn by the face (`docs/charts.md`). Forecasts are records beside the data (`docs/forecasting.md`).
+
 **Default (change via ADR if a better option appears):** a page version's `content` is a JSON document of typed **blocks** (`markdown`, `table`, `chart` with a declarative spec, `kv`, `embed` for a self-contained HTML/JS artifact stored as a blob, `ref` for a link to another page). Interactive views are `embed` blocks: sandboxed iframes rendering a stored HTML file. The face knows how to render each block kind; agents only emit blocks.
 
 Each page version carries: `produced_by` (agent name + run id), `as_of` (the data date it reflects), `inputs_used` (record ids), `summary` (one line, for the timeline).
@@ -252,11 +254,14 @@ Marked **Decided** / **Default** (reasonable choice, change with an ADR) / **Ope
     vocabulary.md       # §3, authoritative
     content-contract.md # §8, authoritative
     content-contract.schema.json # the same contract as JSON Schema
+    charts.md           # the standard chart and the data pipeline
+    forecasting.md      # the forecaster protocol
   framework/            # the framework code (record store, registry, runtime, face)
   agents/
     developer/          # extra instructions for the developer agent itself
     asset/<name>/       # one folder per asset agent
     temporal/<name>/    # one folder per temporal agent
+    forecasters/<name>/ # one folder per forecaster
   programs/             # analyses/simulations built on top; may be split out later
   deploy/               # docker-compose, k8s manifests
 ```

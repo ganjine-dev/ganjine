@@ -163,3 +163,4 @@ Answers to `HANDOFF.md §14`. Written by the operator or by an agent quoting the
 
 - 2026-11-01 — Public repository started from the private project without its history or operator data (`adr/0008`). Next step: an example asset agent on public data, and Linux unlock for the signer.
 - 2026-11-01 — Published as `ganjine-dev/ganjine`, with `v0.1.0` as a pre-release. A new install's key creation is still untested. Next step: try `./ganjine up` on a clean Mac account.
+- 2026-11-02 — Timeline block and forecast layer (`adr/0010`, `adr/0011`). Every chart over time now shares one look, and forecasts are records beside the data. Next step: an example asset agent on public data, using a timeline.

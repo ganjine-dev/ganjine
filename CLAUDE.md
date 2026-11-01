@@ -25,6 +25,8 @@ The command definition is in `.claude/commands/roadmap.md`. It is the normal way
 - **Vocabulary is fixed.** New concept → add it to `docs/vocabulary.md` in the same commit.
 - **No domain logic in `framework/`.** Asset knowledge lives in `agents/` or `programs/`.
 - **Build in the agent first, promote to framework second.** One item needing something is not a framework feature.
+- **Every chart over time is a `timeline`.** Core rule. Agents give data and the face draws it, so every chart reads the same. See `docs/charts.md`. Never hand-write a chart over time.
+- **A forecast is data.** Any model sits behind `docs/forecasting.md`, and its answer is a record. A chart reads that record, and never calls a model.
 - **Small and runnable.** The operator wants to open something at the end of every phase.
 
 ## Working with the running Ganjine
