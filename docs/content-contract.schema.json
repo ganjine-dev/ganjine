@@ -1,13 +1,13 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://ganjine.local/schemas/content-contract/v1.json",
-  "title": "Ganjine page version (contract_version 1)",
+  "title": "Ganjine page version (contract_version 1 or 2)",
   "description": "Machine-readable twin of docs/content-contract.md. A closed schema: new fields or block kinds require a new contract_version.",
   "type": "object",
   "required": ["contract_version", "address", "as_of", "produced_by", "inputs_used", "summary", "blocks"],
   "additionalProperties": false,
   "properties": {
-    "contract_version": { "const": 1 },
+    "contract_version": { "enum": [1, 2] },
     "address": { "$ref": "#/$defs/address" },
     "as_of": { "$ref": "#/$defs/date" },
     "produced_by": {
@@ -60,7 +60,8 @@
         { "$ref": "#/$defs/table" },
         { "$ref": "#/$defs/chart" },
         { "$ref": "#/$defs/embed" },
-        { "$ref": "#/$defs/ref" }
+        { "$ref": "#/$defs/ref" },
+        { "$ref": "#/$defs/timeline" }
       ]
     },
     "markdown": {
@@ -125,6 +126,30 @@
           }
         },
         "record": { "$ref": "#/$defs/id" }
+      },
+      "unevaluatedProperties": false
+    },
+    "window": {
+      "type": "object",
+      "required": ["options"],
+      "additionalProperties": false,
+      "properties": {
+        "options": { "type": "array", "items": { "type": "integer", "minimum": 1 }, "minItems": 1, "uniqueItems": true },
+        "value": { "type": "integer", "minimum": 1 }
+      }
+    },
+    "timeline": {
+      "$ref": "#/$defs/blockCommon",
+      "required": ["data"],
+      "properties": {
+        "kind": { "const": "timeline" },
+        "data": { "$ref": "#/$defs/recordRef" },
+        "forecast": { "$ref": "#/$defs/recordRef" },
+        "reference": { "type": "array", "items": { "type": "string", "minLength": 1 } },
+        "value_title": { "type": "string" },
+        "rebase": { "type": "boolean" },
+        "past": { "$ref": "#/$defs/window" },
+        "next": { "$ref": "#/$defs/window" }
       },
       "unevaluatedProperties": false
     },
