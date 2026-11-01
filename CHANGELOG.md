@@ -5,6 +5,7 @@ Format: [Keep a Changelog](https://keepachangelog.com). Versions: [SemVer](https
 ## Unreleased
 
 - App icon: a gold arch on lapis.
+- `ganjine status` works before the first migration.
 - `ganjine react`: fixed commands run when a record kind commits, started by `ganjine up`.
 
 ## 0.1.0 - 2026-11-01
