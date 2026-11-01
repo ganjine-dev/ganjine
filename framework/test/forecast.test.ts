@@ -151,6 +151,16 @@ describe('timeline spec', () => {
     assert.deepEqual(s.layer[5].encoding.color.scale.domain, ['a', 'b']);
   });
 
+  it('draws markers only when given, and keeps their labels apart', () => {
+    assert.equal((timelineSpec(block, data, undefined, '2026-01-16', 'r') as any).layer.length, 7);
+    const s = timelineSpec({ ...block, markers: [{ date: '2026-01-20', label: 'One' }, { date: '2026-01-21', label: 'Two', detail: 'More' }] }, data, undefined, '2026-01-16', 'r') as any;
+    assert.equal(s.layer.length, 9);
+    const [one, two] = s.layer[3].data.values;
+    assert.notEqual(one.py, two.py);
+    assert.equal(one.detail, 'One');
+    assert.equal(two.detail, 'More');
+  });
+
   it('refuses a record with no values', () => {
     assert.throws(() => timelineSpec(block, {}, undefined, '2026-01-16', 'r'), /no values/);
   });

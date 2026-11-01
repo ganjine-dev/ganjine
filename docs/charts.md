@@ -32,12 +32,14 @@ Every chart over time comes from the same three steps:
 | Next window | Always there, and shaded. Pick 1 month to 1 year. |
 | Dotted line and band | The forecast, starting where the solid line ends. The band is its 10% to 90% range. |
 | Dashed grey line | A `reference`, such as a benchmark. |
+| Thin dotted vertical line | A `marker`: a dated moment, such as an event or a decision. Its label sits at the top, and `detail` shows on hover. |
 | Label in the next window | `Forecast: <model>`, `Forecast: <model>, to <date>`, or `No forecast`. |
 
 ## Changing it
 
 - **Simpler:** one option in `past` or `next` removes that picker: `"past": { "options": [365] }`.
 - **Real values:** `"rebase": false` shows values as they are, and `value_title` names the axis.
+- **Dated moments:** `"markers": [{ "date": "2026-11-15", "label": "Short text", "detail": "Longer text" }]`. Keep labels short, and use a few.
 - **Something new:** add an optional field to the block, here and in the schema. Don't write a one-off spec.
 
 Keep to eight series or fewer. More than that needs another chart, not more colors.

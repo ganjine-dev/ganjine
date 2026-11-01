@@ -148,6 +148,19 @@
         "reference": { "type": "array", "items": { "type": "string", "minLength": 1 } },
         "value_title": { "type": "string" },
         "rebase": { "type": "boolean" },
+        "markers": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["date", "label"],
+            "additionalProperties": false,
+            "properties": {
+              "date": { "$ref": "#/$defs/date" },
+              "label": { "type": "string", "minLength": 1 },
+              "detail": { "type": "string" }
+            }
+          }
+        },
         "past": { "$ref": "#/$defs/window" },
         "next": { "$ref": "#/$defs/window" }
       },
