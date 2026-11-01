@@ -1,0 +1,17 @@
+Ganjine
+Copyright (C) 2026 Ganjine contributors
+
+This program is free software: you can redistribute it and/or modify it under
+the terms of the GNU Affero General Public License as published by the Free
+Software Foundation, either version 3 of the License, or (at your option) any
+later version. See LICENSE.
+
+Additional permission under GNU AGPL version 3 section 7:
+
+If you modify this program, or any covered work, by linking or combining it
+with @anthropic-ai/claude-agent-sdk (or a modified version of that library),
+containing parts covered by the terms of that library's license, the licensors
+of this program grant you additional permission to convey the resulting work.
+
+That library is optional, is not distributed with this program, and is not free
+software. Without it, everything works except agent runs.

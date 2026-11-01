@@ -1,0 +1,9 @@
+{
+  "tools": ["write_page"],
+  "pages": ["/system/heartbeat"],
+  "model": "claude-opus-5-5",
+  "effort": "low",
+  "timeout_seconds": 120,
+  "max_turns": 4,
+  "max_budget_usd": 0.25
+}

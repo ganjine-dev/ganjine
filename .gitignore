@@ -1,0 +1,8 @@
+.env
+*.local
+node_modules/
+__pycache__/
+target/
+.DS_Store
+.ganjine/
+agents/local/

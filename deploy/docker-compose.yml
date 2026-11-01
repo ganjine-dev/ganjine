@@ -1,0 +1,21 @@
+name: ganjine
+
+services:
+  postgres:
+    image: postgres:17
+    environment:
+      POSTGRES_USER: ganjine
+      POSTGRES_PASSWORD: ganjine
+      POSTGRES_DB: ganjine
+    ports:
+      - "127.0.0.1:${GANJINE_PG_PORT:-5434}:5432"
+    volumes:
+      - ganjine-pg:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ganjine"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+volumes:
+  ganjine-pg:

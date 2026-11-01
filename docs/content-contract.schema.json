@@ -1,0 +1,177 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://ganjine.local/schemas/content-contract/v1.json",
+  "title": "Ganjine page version (contract_version 1)",
+  "description": "Machine-readable twin of docs/content-contract.md. A closed schema: new fields or block kinds require a new contract_version.",
+  "type": "object",
+  "required": ["contract_version", "address", "as_of", "produced_by", "inputs_used", "summary", "blocks"],
+  "additionalProperties": false,
+  "properties": {
+    "contract_version": { "const": 1 },
+    "address": { "$ref": "#/$defs/address" },
+    "as_of": { "$ref": "#/$defs/date" },
+    "produced_by": {
+      "type": "object",
+      "required": ["agent"],
+      "additionalProperties": false,
+      "properties": {
+        "agent": { "type": "string", "minLength": 1 },
+        "run_id": { "$ref": "#/$defs/id" }
+      }
+    },
+    "inputs_used": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/id" },
+      "uniqueItems": true
+    },
+    "summary": { "type": "string", "pattern": "^[^\\r\\n]+$" },
+    "blocks": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "#/$defs/block" }
+    }
+  },
+  "$defs": {
+    "id": { "type": "string", "minLength": 1 },
+    "address": { "type": "string", "pattern": "^/\\S*$" },
+    "date": {
+      "type": "string",
+      "format": "date",
+      "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+    },
+    "recordRef": {
+      "type": "object",
+      "required": ["record"],
+      "additionalProperties": false,
+      "properties": { "record": { "$ref": "#/$defs/id" } }
+    },
+    "blockCommon": {
+      "type": "object",
+      "required": ["kind"],
+      "properties": {
+        "id": { "type": "string", "minLength": 1 },
+        "title": { "type": "string", "minLength": 1 }
+      }
+    },
+    "block": {
+      "oneOf": [
+        { "$ref": "#/$defs/markdown" },
+        { "$ref": "#/$defs/kv" },
+        { "$ref": "#/$defs/table" },
+        { "$ref": "#/$defs/chart" },
+        { "$ref": "#/$defs/embed" },
+        { "$ref": "#/$defs/ref" }
+      ]
+    },
+    "markdown": {
+      "$ref": "#/$defs/blockCommon",
+      "required": ["text"],
+      "properties": {
+        "kind": { "const": "markdown" },
+        "text": { "type": "string" }
+      },
+      "unevaluatedProperties": false
+    },
+    "kv": {
+      "$ref": "#/$defs/blockCommon",
+      "required": ["items"],
+      "properties": {
+        "kind": { "const": "kv" },
+        "items": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "required": ["key", "value"],
+            "additionalProperties": false,
+            "properties": {
+              "key": { "type": "string", "minLength": 1 },
+              "value": { "type": "string" },
+              "unit": { "type": "string" },
+              "delta": { "type": "number" }
+            }
+          }
+        }
+      },
+      "unevaluatedProperties": false
+    },
+    "table": {
+      "$ref": "#/$defs/blockCommon",
+      "required": ["columns"],
+      "oneOf": [
+        { "required": ["rows"] },
+        { "required": ["record"] }
+      ],
+      "properties": {
+        "kind": { "const": "table" },
+        "columns": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "required": ["name", "type"],
+            "additionalProperties": false,
+            "properties": {
+              "name": { "type": "string", "minLength": 1 },
+              "type": { "enum": ["string", "number", "date"] }
+            }
+          }
+        },
+        "rows": {
+          "type": "array",
+          "items": {
+            "type": "array",
+            "items": { "type": ["string", "number", "null"] }
+          }
+        },
+        "record": { "$ref": "#/$defs/id" }
+      },
+      "unevaluatedProperties": false
+    },
+    "chart": {
+      "$ref": "#/$defs/blockCommon",
+      "required": ["spec"],
+      "properties": {
+        "kind": { "const": "chart" },
+        "spec": {
+          "type": "object",
+          "description": "Vega-Lite spec. The face owns Vega-Lite validation; this schema only forbids remote data at the top level.",
+          "properties": {
+            "data": { "not": { "type": "object", "required": ["url"] } }
+          }
+        },
+        "data": {
+          "oneOf": [
+            { "type": "array", "items": { "type": "object" } },
+            { "$ref": "#/$defs/recordRef" }
+          ]
+        }
+      },
+      "unevaluatedProperties": false
+    },
+    "embed": {
+      "$ref": "#/$defs/blockCommon",
+      "required": ["blob"],
+      "properties": {
+        "kind": { "const": "embed" },
+        "blob": {
+          "type": "string",
+          "pattern": "^blob:sha256:[0-9a-f]+$",
+          "description": "Content-addressed blob reference. See docs/adr/0003-blob-storage.md."
+        },
+        "height": { "type": "integer", "minimum": 1 }
+      },
+      "unevaluatedProperties": false
+    },
+    "ref": {
+      "$ref": "#/$defs/blockCommon",
+      "required": ["address"],
+      "properties": {
+        "kind": { "const": "ref" },
+        "address": { "$ref": "#/$defs/address" },
+        "as_of": { "$ref": "#/$defs/date" }
+      },
+      "unevaluatedProperties": false
+    }
+  }
+}

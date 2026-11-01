@@ -1,0 +1,11 @@
+<!doctype html>
+<meta charset="utf-8">
+<style>body { font: 14px system-ui; margin: 16px; color: #1c1c1a; }</style>
+<p>This is a stored file in a sandboxed frame. It runs scripts but has no network.</p>
+<button id="b">Clicked 0 times</button>
+<p id="net"></p>
+<script>
+let n = 0;
+b.onclick = () => { b.textContent = `Clicked ${++n} times`; };
+fetch('/items').then(() => { net.textContent = 'network: REACHABLE'; }, () => { net.textContent = 'network: blocked'; });
+</script>
