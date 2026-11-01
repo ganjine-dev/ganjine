@@ -54,6 +54,8 @@ export const broadcast = (e: GanjineEvent) => {
 };
 
 type Ctx = { db: Db; store: BlobStore; url: URL };
+const drawsChart = (b: { kind: string }) => b.kind === 'chart' || b.kind === 'timeline';
+
 type View = { title: string; section: string; body: Raw; charts?: boolean; status?: number; watch?: string };
 
 const empty = (text: string) => html`<p class="empty">${text}</p>`;
@@ -210,7 +212,7 @@ async function sessionView({ db, store }: Ctx, id: string): Promise<View> {
   return {
     title: s.title,
     section: 'Sessions',
-    charts: [...s.pages, ...s.drafts].some((p) => p.content.blocks.some((b: { kind: string }) => b.kind === 'chart')),
+    charts: [...s.pages, ...s.drafts].some((p) => p.content.blocks.some(drawsChart)),
     watch: `session:${id}`,
     body: html`<p class="address"><a href="/sessions">Sessions</a> /</p>
     <h1>${s.title}</h1>
@@ -232,7 +234,7 @@ async function draftView({ db, store }: Ctx, address: string, res: ServerRespons
   return {
     title: `Draft of ${address}`,
     section: 'Sessions',
-    charts: c.blocks.some((b: { kind: string }) => b.kind === 'chart'),
+    charts: c.blocks.some(drawsChart),
     watch: `session:${draft.session}`,
     body: html`<p class="address">${address}</p><h1>${c.summary}</h1>
     <p class="notice">Draft by session <a href="/sessions/${draft.session}">${draft.session}</a>. Not signed yet, not part of the record, and it may change.</p>
@@ -335,7 +337,7 @@ async function pageView({ db, store, url }: Ctx, address: string): Promise<View>
   return {
     title: address,
     section: 'Items',
-    charts: c.blocks.some((b: { kind: string }) => b.kind === 'chart'),
+    charts: c.blocks.some(drawsChart),
     body: html`<div class="page-head"><div><p class="address">${address}</p>
     <h1>${c.summary}</h1>
     <p class="meta">As of ${version.as_of} · written ${when(version.created_at)} · by ${c.produced_by.agent}${version.run_id && html` · <a href="/runs/${version.run_id}">view run</a>`}</p></div>${timeline}</div>
