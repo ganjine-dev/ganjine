@@ -174,6 +174,20 @@ describe('page view', () => {
 });
 
 describe('block rendering', () => {
+  it('draws a timeline from a version 2 page, with its forecast as data', async () => {
+    const data = await putRecord(t.db, { kind: 'series', payload: { values: [{ date: '2026-09-01', series: 'a', value: 1 }, { date: '2026-10-01', series: 'a', value: 2 }] } });
+    const forecast = await putRecord(t.db, { kind: 'forecast', payload: { input: data.id, status: 'partial', forecaster: { name: 'm' }, series: [{ name: 'a', points: [{ date: '2026-10-08', value: 3 }] }] } });
+    await put({ contract_version: 2, address: '/items/acme/time', as_of: '2026-10-01', blocks: [{ kind: 'timeline', title: 'Over time', data: { record: data.id }, forecast: { record: forecast.id } }] });
+    const { text } = await get('/pages/items/acme/time');
+    assert.match(text, /data-chart/);
+    assert.match(text, /Forecast: m, to 2026-10-08/);
+  });
+
+  it('refuses a timeline in a version 1 page', async () => {
+    const data = await putRecord(t.db, { kind: 'series', payload: { values: [] } });
+    await assert.rejects(put({ address: '/items/acme/old', blocks: [{ kind: 'timeline', data: { record: data.id } }] }), /needs contract_version 2/);
+  });
+
   it('renders every block kind', async () => {
     const values = await putRecord(t.db, { kind: 'v', payload: { values: [{ a: 1 }] } });
     const rows = await putRecord(t.db, { kind: 'r', payload: { rows: [['from-record', 9]] } });

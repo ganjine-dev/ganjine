@@ -6,6 +6,7 @@ import type { Db } from '../db.ts';
 import { GanjineError } from '../db.ts';
 import { getRecord } from '../records.ts';
 import { html, pageHref, Raw } from './html.ts';
+import { timelineSpec } from './timeline.ts';
 
 const md = new MarkdownIt({ html: false });
 
@@ -29,7 +30,7 @@ md.renderer.rules.link_close = (tokens, i, options, _env, self) => {
 };
 const json = (v: unknown) => new Raw(JSON.stringify(v).replace(/</g, '\\u003c'));
 
-type Context = { db: Db; store: BlobStore };
+type Context = { db: Db; store: BlobStore; asOf: string };
 type Renderer = (b: Block, ctx: Context) => Raw | Promise<Raw>;
 
 const blocksV1: Record<string, Renderer> = {
@@ -74,8 +75,18 @@ const blocksV1: Record<string, Renderer> = {
   },
 };
 
+const blocksV2: Record<string, Renderer> = {
+  ...blocksV1,
+
+  timeline: async (b, { db, asOf }) => {
+    const data = (await getRecord(db, b.data.record)).payload;
+    const forecast = b.forecast && (await getRecord(db, b.forecast.record)).payload;
+    return html`<div class="chart" data-chart><div class="chart-body"></div><script type="application/json">${json(timelineSpec(b, data, forecast, asOf, b.data.record))}</script></div>`;
+  },
+};
+
 // Old contract versions keep their renderers here, so old page versions keep rendering.
-const CONTRACTS: Record<number, Record<string, Renderer>> = { 1: blocksV1 };
+const CONTRACTS: Record<number, Record<string, Renderer>> = { 1: blocksV1, 2: blocksV2 };
 
 async function renderBlock(b: Block, blocks: Record<string, Renderer>, ctx: Context) {
   let body: Raw;
@@ -93,7 +104,8 @@ async function renderBlock(b: Block, blocks: Record<string, Renderer>, ctx: Cont
   </section>`;
 }
 
-export async function renderBlocks(content: PageContent, ctx: Context) {
+export async function renderBlocks(content: PageContent, base: Omit<Context, 'asOf'>) {
+  const ctx = { ...base, asOf: content.as_of };
   const blocks = CONTRACTS[content.contract_version];
   if (!blocks) return html`<p class="block-error">No renderer for contract version ${content.contract_version}.</p>`;
   return html`${await Promise.all(content.blocks.map((b) => renderBlock(b, blocks, ctx)))}`;

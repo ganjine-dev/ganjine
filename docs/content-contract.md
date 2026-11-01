@@ -39,7 +39,17 @@ Blocks are flat: `kind` and the fields below sit side by side on one object.
 | `embed` | `{ "blob": "<blob ref>", "height"?: number }` | Self-contained HTML/JS file rendered in a sandboxed iframe. Blob refs are `blob:sha256:<hex>` (`adr/0003-blob-storage.md`). Client-side only: no network, no calling back into the framework. Everything it needs is inside the file, so it still renders in a year. |
 | `ref` | `{ "address": "/..." , "as_of"?: "<date>" }` | Link to another page, optionally pinned to a date. |
 
+## Block kinds added in v2
+
+A page with `"contract_version": 2` can use everything above, and:
+
+| kind | fields | notes |
+|---|---|---|
+| `timeline` | `{ "data": { "record": "<id>" }, "forecast"?: { "record": "<id>" }, "reference"?: ["<series>"], "value_title"?: "...", "rebase"?: false, "past"?: { "options": [days], "value": days }, "next"?: { "options": [days], "value": days } }` | **The standard chart for anything over time.** `data` is a series record, `forecast` a forecast record for it. The face draws it. One option in `past` or `next` removes that picker. See `charts.md`. |
+
 Every block may carry `"id"` (stable within the page, for anchors) and `"title"`.
+
+Version 1 pages keep rendering as they are. `timeline` is refused in a version 1 page.
 
 ## Example
 

@@ -6,6 +6,9 @@ Format: [Keep a Changelog](https://keepachangelog.com). Versions: [SemVer](https
 
 - Drafts: `ganjine page draft`, `finalize` and `discard`. Sessions work unsigned and sign one final version.
 - A session holds a page while drafting, and a page last written by another agent needs `--base`.
+- Content contract version 2 adds the `timeline` block, the standard chart over time. Version 1 pages render as before.
+- Forecast layer: any forecaster behind a JSON protocol, with answers stored as `forecast` records. `ganjine series put` and `ganjine forecast run`.
+- First forecaster: TimesFM 2.5, in `agents/forecasters/timesfm/`. It's optional and needs `uv`.
 
 ## 0.1.0 - 2026-11-01
 

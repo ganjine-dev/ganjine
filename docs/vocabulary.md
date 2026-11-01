@@ -9,6 +9,10 @@ Authoritative. `HANDOFF.md §3` mirrors this table. Use these words exactly; do 
 | **Input** | Data attached to an item by the operator or fetched by an agent: files, numbers, URLs, API pulls, parameters. Every input is a record. |
 | **Category** | A node in the category system. An item can belong to many categories. Categories can be nested (tree) and related to each other (graph edges). Tags are flat categories. |
 | **Panel** | The content an asset agent produces for one item. A panel is one or more pages. |
+| **Series** | A record holding values over time: `{ "values": [{ "date", "series", "value" }] }`. What a timeline draws. |
+| **Timeline** | The standard chart: a block with a past window, a line at the page's as-of, and a next window. The agent gives data and the face draws it. See `adr/0010-timeline-chart-standard.md`. |
+| **Forecaster** | A fixed command that answers a forecast request. Any model can be one. See `adr/0011-forecast-layer.md`. |
+| **Forecast** | A forecaster's answer, stored as a record naming its input: `ok`, `partial` or `none`. Charts read it, and no chart runs a model. |
 | **Page / Subpage** | A unit of dashboard content. Pages have a stable address, a current version, and a version history. |
 | **Address** | The stable path of a page, e.g. `/items/<item>/overview`. Never changes once assigned. |
 | **Page version** | One immutable rendering of a page's content, produced by one run at one time. Also a record. |

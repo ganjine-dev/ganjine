@@ -6,6 +6,7 @@ import { attachItem, categoryTree, createCategory, linkCategories, listCategorie
 import type { Db } from './db.ts';
 import { connect, databaseUrl, migrate, tx, GanjineError } from './db.ts';
 import { serve } from './face/server.ts';
+import { produceForecast, putSeries, type Step } from './forecast.ts';
 import { createItem, listItems, resolveItem, showItem } from './items.ts';
 import { ledger, sealExisting, verifyChain, HEAD_PATH, ANCHOR_PATH } from './ledger.ts';
 import { discardDraft, finalizeDraft, listDrafts, putDraft } from './drafts.ts';
@@ -43,6 +44,8 @@ const USAGE = `ganjine — capital-management framework
   ganjine record put --kind <kind> [--item <name>] [--tag <t>]... [--payload <json>] [--file <path>]
   ganjine record get <id>
   ganjine record query [--kind <k>] [--item <name>] [--tag <t>]... [--from <date>] [--to <date>] [--limit <n>]
+  ganjine series put [--item <name>] [--tag <t>]... (--payload <json> | --file <path>) [--steps <n>] [--step week|day] [--exclude <series>]...
+  ganjine forecast run <record id> [--steps <n>] [--step week|day] [--exclude <series>]...
   ganjine page put <file|-> [--base <version id>]
   ganjine page draft <file|-> --session <id> [--base <version id>]
   ganjine page finalize <address> --session <id>
@@ -98,7 +101,32 @@ function json(text: string | undefined, name: string): unknown {
 
 const itemId = async (db: Db, ref?: string) => (ref ? (await resolveItem(db, ref)).id : undefined);
 
+const FORECAST = { steps: str, step: str, exclude: many } as const;
+function forecastOptions(opts: Record<string, any>) {
+  if (opts.step && opts.step !== 'week' && opts.step !== 'day') throw new GanjineError('--step is week or day');
+  const count = opts.steps === undefined ? undefined : Number(opts.steps);
+  if (count !== undefined && !(Number.isInteger(count) && count > 0)) throw new GanjineError('--steps is a whole number above 0');
+  return { step: opts.step as Step | undefined, count, exclude: opts.exclude };
+}
+
 const COMMANDS: Record<string, Command> = {
+  'series put': {
+    args: 0,
+    options: { item: str, tag: many, payload: str, file: str, ...FORECAST },
+    run: async (db, p) => putSeries(db, {
+      itemId: await itemId(db, p.opts.item),
+      tags: p.opts.tag,
+      payload: json(p.opts.file ? await readFile(p.opts.file, 'utf8') : p.opts.payload, p.opts.file ? 'file' : 'payload'),
+    }, forecastOptions(p.opts)),
+  },
+  'forecast run': {
+    args: 1,
+    options: FORECAST,
+    run: async (db, p) => {
+      const r = await produceForecast(db, p.args[0], forecastOptions(p.opts));
+      return { forecast: r.id, status: r.payload.status, reason: r.payload.reason };
+    },
+  },
   'db migrate': { args: 0, run: async (db) => ({ applied: await migrate(db) }) },
   'item create': { args: 1, options: { meta: str }, run: (db, p) => createItem(db, p.args[0], json(p.opts.meta, 'meta')) },
   'item list': { args: 0, run: (db) => listItems(db) },
