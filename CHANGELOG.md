@@ -4,6 +4,8 @@ Format: [Keep a Changelog](https://keepachangelog.com). Versions: [SemVer](https
 
 ## Unreleased
 
+- App icon: a gold arch on lapis.
+
 ## 0.1.0 - 2026-11-01
 
 First public version.

@@ -11,13 +11,19 @@ target="$(uname -m)-apple-macos14.0"
 
 version="$(node -p "require('$root/framework/package.json').version")"
 app="$HOME/Applications/Ganjine.app"
-mkdir -p "$app/Contents/MacOS"
+mkdir -p "$app/Contents/MacOS" "$app/Contents/Resources"
+work="$(mktemp -d)"
+swiftc -O -target "$target" "$root/deploy/macos/icon.swift" -o "$work/icon"
+"$work/icon" "$work/Ganjine.iconset"
+iconutil -c icns "$work/Ganjine.iconset" -o "$app/Contents/Resources/Ganjine.icns"
+rm -rf "$work"
 cat > "$app/Contents/Info.plist" <<P
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0"><dict>
 <key>CFBundleName</key><string>Ganjine</string>
 <key>CFBundleIdentifier</key><string>local.ganjine.app</string>
+<key>CFBundleIconFile</key><string>Ganjine</string>
 <key>CFBundleExecutable</key><string>Ganjine</string>
 <key>CFBundlePackageType</key><string>APPL</string>
 <key>CFBundleVersion</key><string>1</string>
@@ -28,4 +34,5 @@ cat > "$app/Contents/Info.plist" <<P
 P
 swiftc -O -target "$target" -parse-as-library "$root/deploy/macos/GanjineApp.swift" -o "$app/Contents/MacOS/Ganjine"
 codesign --force --sign - "$app"
+touch "$app"
 echo "Built $app"

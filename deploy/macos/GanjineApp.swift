@@ -141,7 +141,7 @@ struct Root: View {
   var body: some View {
     VStack(alignment: .leading, spacing: 14) {
       HStack(spacing: 10) {
-        Image(systemName: "lock.shield.fill").font(.system(size: 28)).foregroundStyle(.tint)
+        Image(nsImage: NSApp.applicationIconImage).resizable().frame(width: 40, height: 40)
         VStack(alignment: .leading, spacing: 0) {
           Text("Ganjine").font(.system(size: 20, weight: .bold, design: .rounded))
           Text("Signed workspace for your agents").font(.caption).foregroundStyle(.secondary)

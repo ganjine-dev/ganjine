@@ -121,6 +121,21 @@ Answers to open questions (`HANDOFF.md §14`) are recorded under **Decisions** a
 
 ---
 
+## Release path
+
+**Now, while PRs merge quickly:** `main` is the product. Installs run from a clone with `git pull` and `deploy/macos/install.sh`. Tag a `0.x` version when a batch is worth naming. Source only, no packaged build.
+
+**DMG, when someone who is not a developer wants to install it:**
+
+- [ ] The app carries the framework and Node, instead of pointing at a clone
+- [ ] Postgres ships without Docker, or the app guides the install
+- [ ] Developer ID signing and notarization, so Gatekeeper opens it. This also gives the unlock helper a stable identity, so updates keep Keychain access
+- [ ] Moving an existing `.ganjine` to a data folder outside the app
+- [ ] CI builds the DMG from a tag, with a drag-to-Applications window
+- [ ] Auto-update
+
+---
+
 ## Later (not scheduled)
 
 Linux and other non-macOS unlock helpers. GNU evaluation, once the Claude dependency is replaceable. Multi-operator. External data connectors as first-class. Agents that spawn agents. Exporting `programs/` into their own repos.
