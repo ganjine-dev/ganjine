@@ -26,7 +26,7 @@ describe('a busy dashboard port', () => {
     assert.ok(s.issues.some((i) => i.title === `Port ${port} is taken` && i.check.length));
     assert.equal(s.state === 'running', false);
   });
-  it('stops up before it touches anything', async () => {
+  it('stops up before it touches anything', { skip: upState() ? 'Ganjine is running here' : false }, async () => {
     await assert.rejects(up({ port, open: false }), new RegExp(`port ${port} is held by pid ${child.pid}`));
   });
   it('offers the next free port', () => {
