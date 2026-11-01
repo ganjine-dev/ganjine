@@ -11,6 +11,7 @@ Authoritative. `HANDOFF.md §3` mirrors this table. Use these words exactly; do 
 | **Panel** | The content an asset agent produces for one item. A panel is one or more pages. |
 | **Series** | A record holding values over time: `{ "values": [{ "date", "series", "value" }] }`. What a timeline draws. |
 | **Timeline** | The standard chart: a block with a past window, a line at the page's as-of, and a next window. The agent gives data and the face draws it. See `adr/0010-timeline-chart-standard.md`. |
+| **Marker** | A dated vertical line on a timeline, with a short label. |
 | **Forecaster** | A fixed command that answers a forecast request. Any model can be one. See `adr/0011-forecast-layer.md`. |
 | **Forecast** | A forecaster's answer, stored as a record naming its input: `ok`, `partial` or `none`. Charts read it, and no chart runs a model. |
 | **Page / Subpage** | A unit of dashboard content. Pages have a stable address, a current version, and a version history. |

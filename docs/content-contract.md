@@ -45,7 +45,7 @@ A page with `"contract_version": 2` can use everything above, and:
 
 | kind | fields | notes |
 |---|---|---|
-| `timeline` | `{ "data": { "record": "<id>" }, "forecast"?: { "record": "<id>" }, "reference"?: ["<series>"], "value_title"?: "...", "rebase"?: false, "past"?: { "options": [days], "value": days }, "next"?: { "options": [days], "value": days } }` | **The standard chart for anything over time.** `data` is a series record, `forecast` a forecast record for it. The face draws it. One option in `past` or `next` removes that picker. See `charts.md`. |
+| `timeline` | `{ "data": { "record": "<id>" }, "forecast"?: { "record": "<id>" }, "reference"?: ["<series>"], "value_title"?: "...", "rebase"?: false, "markers"?: [{ "date", "label", "detail"? }], "past"?: { "options": [days], "value": days }, "next"?: { "options": [days], "value": days } }` | **The standard chart for anything over time.** `data` is a series record, `forecast` a forecast record for it. The face draws it. One option in `past` or `next` removes that picker. See `charts.md`. |
 
 Every block may carry `"id"` (stable within the page, for anchors) and `"title"`.
 

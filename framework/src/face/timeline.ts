@@ -71,6 +71,9 @@ export function timelineSpec(b: Block, data: any, forecast: Forecast | undefined
   const color = { field: 'series', type: 'nominal', title: null, scale: { domain: names }, legend: { orient: 'top', labelLimit: 0, symbolOpacity: 1 } }; // The band is faint, and the legend must not be.
   const tooltip = [{ field: 'series', title: 'Series' }, { field: 't', type: 'temporal', title: 'Date' }, { field: 'y', format: ',.1f', title: b.rebase === false ? 'Value' : 'Index' }];
   const only = (test: string) => [...transform, { filter: test }];
+  // Vertical lines for dated moments. Labels take turns on three lanes, so neighbours stay readable.
+  const markers = (b.markers ?? []).map((m: { date: string; label: string; detail?: string }, i: number) => ({ t: Date.parse(`${m.date}T00:00:00Z`), label: m.label, detail: m.detail ?? m.label, date: m.date, py: 32 + (i % 3) * 16 }));
+  const shown = `datum.t>=${today}-past*${DAY} && datum.t<=${today}+next*${DAY}`;
   return {
     width: 'container',
     height: 320,
@@ -80,6 +83,10 @@ export function timelineSpec(b: Block, data: any, forecast: Forecast | undefined
       { data: { values: [{ a: today, b: today + longest * DAY }] }, mark: { type: 'rect', color: REFERENCE, opacity: 0.1, clip: true }, encoding: { x: { field: 'a', type: 'temporal', title: null, scale }, x2: { field: 'b' } } },
       { data: { values: [{ a: today }] }, mark: { type: 'rule', color: REFERENCE, strokeWidth: 1 }, encoding: { x: { field: 'a', type: 'temporal', scale } } },
       { data: { values: [{ a: today + 6 * DAY, l: nextLabel(forecast, input) }] }, mark: { type: 'text', align: 'left', baseline: 'top', dy: 6, color: REFERENCE, y: 0, clip: true }, encoding: { x: { field: 'a', type: 'temporal', scale }, text: { field: 'l' } } },
+      ...(markers.length ? [
+        { data: { values: markers }, transform: [{ filter: shown }], mark: { type: 'rule', color: REFERENCE, strokeDash: [2, 3], strokeWidth: 1, clip: true }, encoding: { x: { field: 't', type: 'temporal', scale }, tooltip: [{ field: 'date', title: 'Date' }, { field: 'detail', title: 'Marker' }] } },
+        { data: { values: markers }, transform: [{ filter: shown }], mark: { type: 'text', align: 'left', dx: 4, color: REFERENCE, fontSize: 11, clip: true }, encoding: { x: { field: 't', type: 'temporal', scale }, y: { field: 'py', type: 'quantitative', scale: null }, text: { field: 'label' }, tooltip: [{ field: 'date', title: 'Date' }, { field: 'detail', title: 'Marker' }] } },
+      ] : []),
       { transform: only('datum.f==1 && datum.y1!=null && datum.y2!=null'), mark: { type: 'area', opacity: 0.14, clip: true }, encoding: { x, y: { field: 'y1', type: 'quantitative', title: y.title, scale: y.scale }, y2: { field: 'y2' }, color } },
       { transform: only(`indexof(${JSON.stringify([...reference])},datum.series)>=0`), mark: { type: 'line', strokeDash: [5, 4], strokeWidth: 1.5, color: REFERENCE, clip: true }, encoding: { x, y, tooltip } },
       { transform: only(`datum.f==0 && indexof(${JSON.stringify([...reference])},datum.series)<0`), mark: { type: 'line', strokeWidth: 2, clip: true, interpolate: 'monotone' }, encoding: { x, y, color, tooltip } },
