@@ -78,6 +78,8 @@ async function numbers() {
   if (!db) return null;
   try {
     const n = async (sql: string) => (await db.query(sql)).rows[0];
+    // A new install reaches this before its first migration.
+    if (!(await n(`SELECT to_regclass('health') IS NOT NULL AS yes`)).yes) return { records: 0, pages: 0, items: 0, sessions: 0, sealed: 0, last_commit: null, ledger: null, ledger_error: null };
     const has = (await n(`SELECT to_regclass('ledger') IS NOT NULL AS yes`)).yes;
     const { rows: health } = await db.query(`SELECT status, last_error FROM health WHERE component = 'ledger'`);
     return {
