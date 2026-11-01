@@ -63,6 +63,13 @@ after(async () => {
 });
 
 describe('canonical form', () => {
+  it('keeps extending past 99 entries', async () => {
+    for (let i = 0; i < 101; i++) await putRecord(t.db, { kind: 'note', payload: { i } });
+    const verdict = await verifyChain(t.db);
+    assert.equal(verdict.status, 'ok');
+    assert.equal(verdict.seq, 101);
+  });
+
   it('does not depend on key order', () => {
     assert.equal(canonical({ b: 1, a: [{ d: null, c: 'x' }] }), canonical({ a: [{ c: 'x', d: null }], b: 1 }));
   });

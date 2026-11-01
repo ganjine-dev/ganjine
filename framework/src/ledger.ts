@@ -113,7 +113,7 @@ export function ledger(): Ledger | null {
 }
 
 const headOf = async (db: Db): Promise<Head> => {
-  const { rows } = await db.query('SELECT seq::text, entry_hash FROM ledger ORDER BY seq DESC LIMIT 1');
+  const { rows } = await db.query('SELECT seq::text, entry_hash FROM ledger ORDER BY ledger.seq DESC LIMIT 1');
   return rows[0] ? { seq: Number(rows[0].seq), hash: rows[0].entry_hash } : GENESIS;
 };
 

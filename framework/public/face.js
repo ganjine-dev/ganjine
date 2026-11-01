@@ -26,10 +26,10 @@ const chartTheme = {
   font,
   view: { stroke: null },
   axis: {
-    labelColor: token('--muted'), titleColor: token('--muted'), gridColor: token('--line'), domain: false, ticks: false,
-    labelFontSize: 13, titleFontSize: 13, titleFontWeight: 500, labelFont: font, titleFont: font, labelPadding: 8,
+    labelColor: token('--muted'), titleColor: token('--muted'), gridColor: token('--line'), gridOpacity: 0.6, gridDash: [2, 4], domain: false, ticks: false,
+    labelFontSize: 13, titleFontSize: 13, titleFontWeight: 500, labelFont: font, titleFont: font, labelPadding: 10, titlePadding: 12, tickCount: 6,
   },
-  legend: { labelColor: token('--muted'), titleColor: token('--muted'), labelFontSize: 13, titleFontSize: 13 },
+  legend: { labelColor: token('--muted'), titleColor: token('--muted'), labelFontSize: 13, titleFontSize: 13, titleFontWeight: 500, symbolType: 'circle', symbolSize: 80, rowPadding: 6, columnPadding: 18 },
   text: { color: token('--ink'), fontSize: 13 },
   bar: { color: token('--series'), cornerRadiusEnd: 4 },
   point: { color: token('--series') },

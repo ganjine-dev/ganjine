@@ -46,7 +46,8 @@ td.number, th[data-type=number] { text-align: right; font-variant-numeric: tabul
 .blocks { display: flex; flex-wrap: wrap; gap: 18px; }
 .block { flex: 1 1 100%; min-width: 0; }
 .block h2 { margin: 0 0 10px; }
-.block-chart { flex: 1 1 calc(50% - 9px); min-width: min(100%, 420px); background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 18px 20px; }
+.block-chart { flex: 1 1 calc(50% - 9px); min-width: min(100%, 420px); background: var(--panel); border: 1px solid var(--line); border-radius: 14px; padding: 22px 24px; }
+.block-chart h2 { font-size: 16px; font-weight: 600; margin-bottom: 16px; }
 .block-kv + .block-chart { flex-basis: 100%; }
 .block-error { color: var(--bad); border: 1px solid var(--bad); border-radius: 8px; padding: 10px 14px; }
 .prose > :first-child { margin-top: 0; }
