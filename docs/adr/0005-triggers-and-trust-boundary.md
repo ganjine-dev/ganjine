@@ -1,6 +1,6 @@
 # ADR 0005 — Triggers after a movement, and the trust boundary
 
-- Status: **proposed**
+- Status: **accepted** by the operator on 2026-11-01
 - Date: 2026-11-01
 
 ## Context
@@ -27,10 +27,12 @@ Escaping does not protect truth. Someone with write access can change a number w
 
 ## Decision: triggers
 
-A movement owes: a fresh sync, a rebuilt panel that reconciles with the broker, and a line in Recent movements linking its report. This starts as a rule in `.claude/commands/analyze.md`, run by the session, because one item needs it. A framework event table waits for a second item.
+A movement owes: a fresh sync, a rebuilt panel that reconciles with the broker, and a line in Recent movements linking its report. The rule alone failed: a movement reached the dashboard with its choice unrecorded. So `ganjine react`, started by `ganjine up`, runs the reactions in `agents/local/reactions.json`. Each names a record kind and a fixed command. Nothing from an event or a record reaches that command, so stored text cannot choose what runs, and an event only causes a rebuild through the verified read path. A reaction may run `ganjine run <agent>` for a temporal agent. It cannot follow `page_version`, which would loop.
+
+A movement records the operator's choice in `result` and links an outcome page, not the options that came before it.
 
 ## Consequences
 
 - Any new block kind, renderer or agent tool is reviewed against the table above.
-- Refresh still needs the operator logged in, so it cannot be fully automatic.
+- A rebuild uses the latest snapshot. Fresh broker numbers still need a sync with the operator logged in.
 - Phase 5 gains: database roles, tamper evidence for records, and agents reading records as fenced data.

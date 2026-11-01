@@ -12,6 +12,7 @@ Run it with `./ganjine` from the repo root, on Node 23.6+ with no build step. `g
 - Env: `GANJINE_DATABASE_URL`, `GANJINE_BLOB_DIR` (default `.ganjine/blobs`), `GANJINE_LEDGER_DIR` (default `.ganjine/ledger`), `GANJINE_DEBUG` (stack traces).
 - Start: `deploy/macos/install.sh` once, then `Ganjine.app` or `./ganjine up`. `./ganjine down` stops it, `./ganjine status` explains it.
 - Ledger: `adr/0006`. Off until `.ganjine/ledger/ledger.pub` exists (`GANJINE_LEDGER_DIR` moves it). Once on, writes need the signer, and `./ganjine ledger verify` walks the chain.
+- Reactions: `agents/local/reactions.json` lists `{ kind, tag?, run }`. `./ganjine react` runs each fixed command when its record kind commits, and `up` starts it.
 - Live: `/events` for the face, `./ganjine watch` for agents (`adr/0007`).
 - Migrations are plain SQL in `migrations/`, applied once each in name order.
 

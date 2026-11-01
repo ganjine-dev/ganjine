@@ -24,6 +24,7 @@ Authoritative. `HANDOFF.md §3` mirrors this table. Use these words exactly; do 
 | **Finding** | A conclusion written as a record by a hunt session. A later capital or explore session can start from it. |
 | **Movement** | A change to an account's capital, written as a record with a status (proposed, pending, executed). Ganjine proposes; the operator places it at the broker. A status change is a new record under the same key. |
 | **Trigger** | The work a committed event owes the system, such as a refresh after a movement. |
+| **Reaction** | A trigger as data: a record kind and a fixed command, run by `ganjine react`. |
 | **Ledger** | The signed hash chain over records. A record not in it, or that fails against it, is refused on read. See `adr/0006-signed-ledger.md`. |
 | **Signer** | The separate process that holds the ledger's private key and signs only what extends the chain. |
 | **Event** | A hint that a record was committed, from `/events` or `ganjine watch`. Not a fact: read through the verified path. |

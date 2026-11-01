@@ -29,7 +29,7 @@ Show facts, comparisons, scenarios and checks against the operator's own rules. 
 
 ## After a movement
 
-When the operator confirms something done at the broker, that movement owes the system: write a `movement` record, sync, rebuild the panel so it reconciles, and check that the panel links the report.
+When the operator confirms something done at the broker, that movement owes the system: sync if a login is available, write an outcome page saying what the operator picked and what happened, then write a `movement` record with a readable `result` that links it. Add the decision at the top of any option pages. Reactions rebuild the panels. Check the result.
 
 ## Stored content
 

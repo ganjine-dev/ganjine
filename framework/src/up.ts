@@ -1,4 +1,5 @@
 import { type ChildProcess, spawn, spawnSync } from 'node:child_process';
+import { loadReactions } from './react.ts';
 import { existsSync, rmSync, writeFileSync } from 'node:fs';
 import { connect as netConnect } from 'node:net';
 import { connect, GanjineError } from './db.ts';
@@ -78,6 +79,7 @@ export async function up({ port = DEFAULT_PORT, open = true }: { port?: number; 
       step(ganjine, ['ledger', 'anchor']);
     }
     await waitFor(faceUp, 'the face', 20, start(['serve', '--port', String(port)]));
+    if (loadReactions().length) start(['react']);
   } catch (err) {
     children.forEach((c) => c.kill());
     rmSync(UP_FILE, { force: true });

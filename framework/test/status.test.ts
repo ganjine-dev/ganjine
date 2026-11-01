@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import { spawn } from 'node:child_process';
 import { after, before, describe, it } from 'node:test';
 import { freePort, holders, killHolder, status } from '../src/status.ts';
+import { upState } from '../src/status.ts';
 import { up } from '../src/up.ts';
 
 const port = freePort(4700);

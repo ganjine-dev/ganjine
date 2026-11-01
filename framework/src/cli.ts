@@ -18,6 +18,7 @@ import { startSigner } from './signer.ts';
 import { down, up } from './up.ts';
 import { freePort, killHolder, status } from './status.ts';
 import { subscribe } from './events.ts';
+import { execute, loadReactions, reactor } from './react.ts';
 import { closeSession, getSession, listSessions, noteSession, reopenSession, startSession } from './sessions.ts';
 
 /** What a bug report needs, and nothing about the install's data. */
@@ -65,6 +66,7 @@ const USAGE = `ganjine — capital-management framework
   ganjine status
   ganjine kill <pid> [--force]
   ganjine watch [--kind <k>] [--tag <t>]
+  ganjine react
   ganjine signer start
   ganjine ledger seal-existing
   ganjine ledger verify
@@ -254,6 +256,12 @@ async function main() {
     return print(killHolder(Number(args[0]), opts.force));
   }
   if (group === 'down') return print(down());
+  if (group === 'react') {
+    const reactions = loadReactions();
+    await subscribe(databaseUrl(), reactor(reactions, execute));
+    console.error(`Ganjine is following ${reactions.length} reactions`);
+    return new Promise(() => {});
+  }
   if (group === 'watch') {
     const { opts } = parse({ args: 0, options: { kind: str, tag: str } }, 'watch', process.argv.slice(3));
     await subscribe(databaseUrl(), (e) => {
