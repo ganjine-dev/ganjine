@@ -130,7 +130,9 @@ Answers to open questions (`HANDOFF.md §14`) are recorded under **Decisions** a
 - [ ] The app carries the framework and Node, instead of pointing at a clone
 - [ ] Postgres ships without Docker, or the app guides the install
 - [ ] Developer ID signing and notarization, so Gatekeeper opens it. This also gives the unlock helper a stable identity, so updates keep Keychain access
-- [ ] Moving an existing `.ganjine` to a data folder outside the app
+- [ ] **Required:** a clone install moves into the release with its records, blobs, ledger files and key, and `ganjine ledger verify` passes on the same head
+- [ ] `ganjine export` and `ganjine import` do that move, tested from every released version
+- [ ] The release's unlock helper takes the key over from the old one, behind one Touch ID
 - [ ] CI builds the DMG from a tag, with a drag-to-Applications window
 - [ ] Auto-update
 

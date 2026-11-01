@@ -15,6 +15,10 @@
 - **The chain format keeps its first name.** The `vault-ledger-v1` labels stay, because changing them would invalidate signed history.
 - **Agent reports.** `AGENTS.md`: an agent offers an issue, removes private data, shows the text, and files only on a yes.
 
+## Data carries forward
+
+A clone install must be able to move into any later official release with its data, signatures and key. This blocks a release if it fails.
+
 ## GNU
 
 A project cannot declare itself part of GNU. The GNU project evaluates and accepts packages. Agent runs still depend on non-free software, so evaluation waits until they do not.

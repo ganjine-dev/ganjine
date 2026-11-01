@@ -22,6 +22,8 @@ Ganjine uses [Semantic Versioning](https://semver.org). The public surface is th
 - **Minor:** new features that keep existing installs working. A migration is fine if it applies by itself.
 - **Major:** an install or an agent has to change. Before `1.0.0`, this is a minor bump, called out in the changelog.
 
+An install's data always carries forward. Migrations only move forward and apply by themselves, and the ledger format and its labels never change without a tested upgrade from the previous format. No release may ask an operator to start over.
+
 The content contract has its own `contract_version`. Old versions keep their renderers, so old pages keep rendering.
 
 ## Releases
