@@ -39,6 +39,7 @@ export async function getSession(db: Db, id: string) {
      WHERE p.address LIKE $1 ORDER BY first_at`, [`/sessions/${id}/%`])).rows);
   const closed = records.filter((r) => r.kind === 'session.closed').at(-1);
   const status = statusOf(records);
+  const { rows: drafts } = await db.query('SELECT address, content, updated_at FROM page_drafts WHERE session = $1 ORDER BY updated_at', [id]);
   return {
     id,
     title: started.payload.title,
@@ -48,8 +49,11 @@ export async function getSession(db: Db, id: string) {
     notes: records.filter((r) => r.kind === 'session.note').map((r) => ({ at: r.created_at, kind: r.payload.kind, text: r.payload.text })),
     data: records.filter((r) => !r.kind.startsWith('session.')).map((r) => ({ id: r.id, kind: r.kind, at: r.created_at })),
     pages,
+    drafts,
   };
 }
+
+export const requireOpen = (db: Db, id: string) => requireStatus(db, id, 'open');
 
 async function requireStatus(db: Db, id: string, status: string) {
   const session = await getSession(db, id);
@@ -66,6 +70,8 @@ export async function noteSession(db: Db, id: string, kind: string, text: string
 export async function closeSession(db: Db, id: string, conclusion: string) {
   if (!conclusion.trim()) throw new GanjineError('closing a session needs a conclusion');
   await requireStatus(db, id, 'open');
+  const { rows } = await db.query('SELECT address FROM page_drafts WHERE session = $1 ORDER BY address', [id]);
+  if (rows.length) throw new GanjineError(`session ${id} has drafts to finalize or discard: ${rows.map((r) => r.address).join(', ')}`);
   await putRecord(db, { kind: 'session.closed', tags: [tagOf(id)], payload: { conclusion } });
   return { id, status: 'closed', conclusion };
 }

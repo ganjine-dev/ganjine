@@ -67,6 +67,7 @@ export function buildTools({ db, store, runId, agent, config }: Scope): GanjineT
         as_of: z.string().describe('The data date, YYYY-MM-DD'),
         summary: z.string().describe('One line for the version timeline'),
         inputs_used: z.array(z.string()).optional().describe('Record ids this content depends on'),
+        base: z.string().optional().describe('The latest version id, needed when another agent wrote the page last'),
         blocks: z.array(z.record(z.string(), z.unknown())),
       },
       run: async (a) => {
@@ -81,7 +82,7 @@ export function buildTools({ db, store, runId, agent, config }: Scope): GanjineT
           inputs_used: a.inputs_used ?? [],
           summary: a.summary,
           blocks: a.blocks,
-        }, store);
+        }, store, a.base ? { base: a.base } : {});
         return { id: version.id, address: version.address, as_of: version.as_of };
       },
     },

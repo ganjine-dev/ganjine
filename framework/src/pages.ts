@@ -20,16 +20,44 @@ async function checkRefs(db: Db, ids: string[], runId: string | undefined, blobs
   for (const ref of blobs) if (!(await store.exists(ref))) throw new GanjineError(`blob not found: ${ref}`);
 }
 
-export async function putPage(db: Db, content: unknown, store: BlobStore) {
+/** What a draft and a page both have to pass. */
+export async function checkPage(db: Db, content: unknown, store: BlobStore) {
   const page = checkContent(content);
+  await checkRefs(db, recordRefs(page), page.produced_by.run_id, blobRefs(page), store);
+  return page;
+}
+
+export async function latestVersion(db: Db, address: string): Promise<{ id: string; agent: string } | null> {
+  const { rows } = await db.query(
+    `SELECT v.id, v.content->'produced_by'->>'agent' AS agent FROM pages p JOIN page_versions v ON v.id = p.latest_version_id WHERE p.address = $1`, [address]);
+  return rows[0] ?? null;
+}
+
+export type Write = { base?: string | null; session?: string };
+
+/** Who may write over what is there. Cooperation, not security: see `docs/adr/0009-drafts-and-page-ownership.md`. */
+async function checkOwnership(db: Db, address: string, agent: string, { base, session }: Write) {
+  const held = (await db.query('SELECT session FROM page_drafts WHERE address = $1', [address])).rows[0];
+  if (held && held.session !== session) throw new GanjineError(`${address} is held by session ${held.session}`);
+  const latest = await latestVersion(db, address);
+  if (base !== undefined && base !== (latest?.id ?? null)) {
+    throw new GanjineError(`${address} has moved on: built on ${base ?? 'nothing'}, latest is ${latest?.id ?? 'nothing'}. Read it, merge, and try again`);
+  }
+  if (base === undefined && latest && latest.agent !== agent) {
+    throw new GanjineError(`${address} was last written by ${latest.agent}. Read it, then write with base ${latest.id}`);
+  }
+}
+
+export async function putPage(db: Db, content: unknown, store: BlobStore, write: Write = {}) {
+  const page = await checkPage(db, content, store);
   const runId = page.produced_by.run_id;
-  await checkRefs(db, recordRefs(page), runId, blobRefs(page), store);
   const itemName = /^\/items\/([^/]+)/.exec(page.address)?.[1];
   const item = itemName ? await resolveItem(db, itemName) : null;
 
   return tx(db, async () => {
     await db.query('INSERT INTO pages (address, item_id) VALUES ($1, $2) ON CONFLICT DO NOTHING', [page.address, item?.id ?? null]);
     await db.query('SELECT 1 FROM pages WHERE address = $1 FOR UPDATE', [page.address]);
+    await checkOwnership(db, page.address, page.produced_by.agent, write);
     const record = await putRecord(db, {
       kind: 'page_version',
       itemId: item?.id,

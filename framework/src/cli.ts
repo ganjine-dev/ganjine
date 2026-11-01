@@ -8,6 +8,7 @@ import { connect, databaseUrl, migrate, tx, GanjineError } from './db.ts';
 import { serve } from './face/server.ts';
 import { createItem, listItems, resolveItem, showItem } from './items.ts';
 import { ledger, sealExisting, verifyChain, HEAD_PATH, ANCHOR_PATH } from './ledger.ts';
+import { discardDraft, finalizeDraft, listDrafts, putDraft } from './drafts.ts';
 import { getPage, pageHistory, putPage } from './pages.ts';
 import { getRecord, putRecord, queryRecords } from './records.ts';
 import { checkInput, listAgents, loadAgentInstruction, registerAgent, repoRoot } from './runtime/instructions.ts';
@@ -42,7 +43,11 @@ const USAGE = `ganjine — capital-management framework
   ganjine record put --kind <kind> [--item <name>] [--tag <t>]... [--payload <json>] [--file <path>]
   ganjine record get <id>
   ganjine record query [--kind <k>] [--item <name>] [--tag <t>]... [--from <date>] [--to <date>] [--limit <n>]
-  ganjine page put <file|->
+  ganjine page put <file|-> [--base <version id>]
+  ganjine page draft <file|-> --session <id> [--base <version id>]
+  ganjine page finalize <address> --session <id>
+  ganjine page discard <address> [--session <id>]
+  ganjine page drafts [--session <id>]
   ganjine page get <address> [--as-of <date>]
   ganjine page history <address>
   ganjine serve [--port <port>]
@@ -169,11 +174,32 @@ const COMMANDS: Record<string, Command> = {
   'session reopen': { args: 1, run: (db, p) => reopenSession(db, p.args[0]) },
   'page put': {
     args: 1,
+    options: { base: str },
     run: async (db, p) => {
       const text = await readFile(p.args[0] === '-' ? '/dev/stdin' : p.args[0], 'utf8');
-      return putPage(db, json(text, 'file'), blobStore());
+      return putPage(db, json(text, 'file'), blobStore(), p.opts.base ? { base: p.opts.base } : {});
     },
   },
+  'page draft': {
+    args: 1,
+    options: { session: str, base: str },
+    run: async (db, p) => {
+      if (!p.opts.session) throw new GanjineError('a draft needs --session');
+      const text = await readFile(p.args[0] === '-' ? '/dev/stdin' : p.args[0], 'utf8');
+      const { address, base_version_id, updated_at } = await putDraft(db, json(text, 'file'), p.opts.session, blobStore(), p.opts.base);
+      return { address, base_version_id, updated_at, preview: `/drafts${address}` };
+    },
+  },
+  'page finalize': {
+    args: 1,
+    options: { session: str },
+    run: (db, p) => {
+      if (!p.opts.session) throw new GanjineError('finalize needs --session');
+      return finalizeDraft(db, p.args[0], p.opts.session, blobStore());
+    },
+  },
+  'page discard': { args: 1, options: { session: str }, run: (db, p) => discardDraft(db, p.args[0], p.opts.session) },
+  'page drafts': { args: 0, options: { session: str }, run: (db, p) => listDrafts(db, p.opts.session) },
   'page get': { args: 1, options: { 'as-of': str }, run: (db, p) => getPage(db, p.args[0], p.opts['as-of']) },
   'page history': { args: 1, run: (db, p) => pageHistory(db, p.args[0]) },
 };

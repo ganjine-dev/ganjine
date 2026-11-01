@@ -130,7 +130,7 @@ The heart. Append-only table(s) of records. Each record: `id`, `kind`, `item_id?
 Nodes and edges, operator-owned. A node has a name, optional parent (tree), and arbitrary typed edges to other nodes (graph). Items attach to nodes. The face renders this as a browser; agents can read it to decide what to do.
 
 ### 6.3 Page registry
-A page has an **address** (stable path, e.g. `/items/<item>/overview`, `/items/<item>/simulations/monte-carlo`), a **latest version**, and a **history** of versions. A version is a record. The registry resolves `address @ date` → the newest version whose data date (`as_of`) is on or before that date; for equal data dates, the last written wins. **Latest** is the newest data date too, so a backfill never displaces current content.
+A page has an **address** (stable path, e.g. `/items/<item>/overview`, `/items/<item>/simulations/monte-carlo`), a **latest version**, and a **history** of versions. A version is a record. Work in progress is a draft outside the chain, and a page changes only on top of the version the writer saw (`adr/0009`). The registry resolves `address @ date` → the newest version whose data date (`as_of`) is on or before that date; for equal data dates, the last written wins. **Latest** is the newest data date too, so a backfill never displaces current content.
 
 ### 6.4 Agent runtime
 - **Instruction registry**: every agent's instruction (system prompt, tools, input spec, output contract) lives in the repo under `agents/`, versioned by git. The runtime references instructions by name + git sha.

@@ -4,6 +4,9 @@ Format: [Keep a Changelog](https://keepachangelog.com). Versions: [SemVer](https
 
 ## Unreleased
 
+- Drafts: `ganjine page draft`, `finalize` and `discard`. Sessions work unsigned and sign one final version.
+- A session holds a page while drafting, and a page last written by another agent needs `--base`.
+
 ## 0.1.0 - 2026-11-01
 
 First public version. Source only, macOS only, and early.

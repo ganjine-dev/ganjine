@@ -12,6 +12,7 @@ import { resolveItem, showItem } from '../items.ts';
 import { authentic, rejected, verifyChain } from '../ledger.ts';
 import { getPage, getVersion, pageHistory } from '../pages.ts';
 import { getSession, listSessions } from '../sessions.ts';
+import { getDraft } from '../drafts.ts';
 import { renderBlocks } from './blocks.ts';
 import { subscribe, type GanjineEvent } from '../events.ts';
 import { html, layout, pageHref, Raw, when } from './html.ts';
@@ -200,11 +201,16 @@ async function sessionView({ db, store }: Ctx, id: string): Promise<View> {
       body: html`<section class="answer"><h2><a href="${pageHref(p.address)}">${p.content.summary}</a></h2>
         <div class="blocks">${await renderBlocks(p.content, { db, store })}</div></section>`,
     }))),
+    ...await Promise.all(s.drafts.map(async (d) => ({
+      at: +new Date(d.updated_at),
+      body: html`<section class="answer draft"><p class="notice">Draft. Not signed yet, and it may change.</p><h2><a href="/drafts${d.address}">${d.content.summary}</a></h2>
+        <div class="blocks">${await renderBlocks(d.content, { db, store })}</div></section>`,
+    }))),
   ].sort((a, b) => a.at - b.at);
   return {
     title: s.title,
     section: 'Sessions',
-    charts: s.pages.some((p) => p.content.blocks.some((b: { kind: string }) => b.kind === 'chart')),
+    charts: [...s.pages, ...s.drafts].some((p) => p.content.blocks.some((b: { kind: string }) => b.kind === 'chart')),
     watch: `session:${id}`,
     body: html`<p class="address"><a href="/sessions">Sessions</a> /</p>
     <h1>${s.title}</h1>
@@ -212,6 +218,25 @@ async function sessionView({ db, store }: Ctx, id: string): Promise<View> {
     <p class="meta session-meta">Started ${when(s.started_at)} · ${s.data.length} data records</p>
     ${s.conclusion && html`<div class="conclusion"><small>Conclusion</small>${s.conclusion}</div>`}
     ${stream.length ? stream.map((x) => x.body) : empty('Waiting for the first answer.')}`,
+  };
+}
+
+/** Unsigned, so it is only ever shown here and in its session, and always says so. */
+async function draftView({ db, store }: Ctx, address: string, res: ServerResponse): Promise<View | null> {
+  const draft = await getDraft(db, address);
+  if (!draft) {
+    res.writeHead(302, { location: pageHref(address) }).end(); // Finalized while open: the page takes over.
+    return null;
+  }
+  const c = draft.content;
+  return {
+    title: `Draft of ${address}`,
+    section: 'Sessions',
+    charts: c.blocks.some((b: { kind: string }) => b.kind === 'chart'),
+    watch: `session:${draft.session}`,
+    body: html`<p class="address">${address}</p><h1>${c.summary}</h1>
+    <p class="notice">Draft by session <a href="/sessions/${draft.session}">${draft.session}</a>. Not signed yet, not part of the record, and it may change.</p>
+    <div class="blocks">${await renderBlocks(c, { db, store })}</div>`,
   };
 }
 
@@ -345,6 +370,7 @@ async function route(ctx: Ctx, req: IncomingMessage, res: ServerResponse): Promi
   if (run) return runView(ctx, run);
   const item = /^\/items\/([^/]+)$/.exec(path);
   if (item) return itemView(ctx, decodeURIComponent(item[1]));
+  if (path.startsWith('/drafts/')) return draftView(ctx, decodeURI(path.slice('/drafts'.length)), res);
   if (path === '/pages' || path.startsWith('/pages/')) return pageView(ctx, decodeURI(path.slice('/pages'.length)) || '/');
 
   const asset = /^\/assets\/([\w.-]+)$/.exec(path)?.[1];

@@ -16,6 +16,7 @@ import { canonical, GENESIS, sealExisting, setLedger, TamperError, verifyChain }
 import { getPage, putPage } from '../src/pages.ts';
 import { getRecord, putRecord, queryRecords } from '../src/records.ts';
 import { getSession, noteSession, startSession } from '../src/sessions.ts';
+import { finalizeDraft, putDraft } from '../src/drafts.ts';
 import { listen, Signer } from '../src/signer.ts';
 import { page, testDb } from './helpers.ts';
 
@@ -63,11 +64,25 @@ after(async () => {
 });
 
 describe('canonical form', () => {
+  it('signs a finalized page once, and nothing before it', async () => {
+    const { id } = await startSession(t.db, 'drafting');
+    const { seq } = await verifyChain(t.db);
+    const draft = (summary: string) => putDraft(t.db, page({ address: '/reports/draft', summary }), id, t.store);
+    await draft('one');
+    await draft('two');
+    assert.equal((await verifyChain(t.db)).seq, seq);
+    await finalizeDraft(t.db, '/reports/draft', id, t.store);
+    const verdict = await verifyChain(t.db);
+    assert.equal(verdict.status, 'ok');
+    assert.equal(verdict.seq, seq + 1);
+  });
+
   it('keeps extending past 99 entries', async () => {
+    const { seq } = await verifyChain(t.db);
     for (let i = 0; i < 101; i++) await putRecord(t.db, { kind: 'note', payload: { i } });
     const verdict = await verifyChain(t.db);
     assert.equal(verdict.status, 'ok');
-    assert.equal(verdict.seq, 101);
+    assert.equal(verdict.seq, seq + 101);
   });
 
   it('does not depend on key order', () => {
