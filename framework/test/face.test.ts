@@ -181,6 +181,7 @@ describe('block rendering', () => {
     const { text } = await get('/pages/items/acme/time');
     assert.match(text, /data-chart/);
     assert.match(text, /Forecast: m, to 2026-10-08/);
+    assert.match(text, /\/assets\/vega-embed\.js/);
   });
 
   it('refuses a timeline in a version 1 page', async () => {
