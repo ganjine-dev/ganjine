@@ -196,30 +196,26 @@ async function sessionView({ db, store }: Ctx, id: string): Promise<View> {
     if (err instanceof GanjineError) throw new NotFound();
     throw err;
   });
-  const stream = [
-    ...s.notes.map((n) => ({ at: +new Date(n.at), body: html`<div class="note ${n.kind}"><small>${n.kind}</small>${n.text}</div>` })),
-    ...await Promise.all(s.pages.map(async (p) => ({
-      at: +new Date(p.first_at),
-      body: html`<section class="answer"><h2><a href="${pageHref(p.address)}">${p.content.summary}</a></h2>
-        <div class="blocks">${await renderBlocks(p.content, { db, store })}</div></section>`,
-    }))),
-    ...await Promise.all(s.drafts.map(async (d) => ({
-      at: +new Date(d.updated_at),
-      body: html`<section class="answer draft"><p class="notice">Draft. Not signed yet, and it may change.</p><h2><a href="/drafts${d.address}">${d.content.summary}</a></h2>
-        <div class="blocks">${await renderBlocks(d.content, { db, store })}</div></section>`,
-    }))),
+  const pages = [
+    ...s.pages.map((p) => ({ at: +new Date(p.first_at), href: pageHref(p.address), content: p.content, draft: false })),
+    ...s.drafts.map((d) => ({ at: +new Date(d.updated_at), href: `/drafts${d.address}`, content: d.content, draft: true })),
   ].sort((a, b) => a.at - b.at);
+  const notes = s.notes.map((n) => html`<div class="note ${n.kind}"><small>${n.kind}</small>${n.text}</div>`);
   return {
     title: s.title,
     section: 'Sessions',
-    charts: [...s.pages, ...s.drafts].some((p) => p.content.blocks.some(drawsChart)),
     watch: `session:${id}`,
     body: html`<p class="address"><a href="/sessions">Sessions</a> /</p>
     <h1>${s.title}</h1>
     <ul class="chips"><li class="${s.status}">${s.status}</li></ul>
     <p class="meta session-meta">Started ${when(s.started_at)} · ${s.data.length} data records</p>
     ${s.conclusion && html`<div class="conclusion"><small>Conclusion</small>${s.conclusion}</div>`}
-    ${stream.length ? stream.map((x) => x.body) : empty('Waiting for the first answer.')}`,
+    ${pages.length ? html`<div class="cards">${pages.map((p) => html`<a class="card" href="${p.href}">
+      <h3>${p.content.summary}</h3>
+      ${p.draft && html`<ul class="chips"><li class="open">draft</li></ul>`}
+      <p class="card-foot">As of ${p.content.as_of} · ${p.href.split('/').at(-1)}</p>
+    </a>`)}</div>` : !notes.length && empty('Waiting for the first answer.')}
+    ${notes.length && html`<details class="session-notes"${pages.length ? '' : new Raw(' open')}><summary>Notes (${notes.length})</summary>${notes}</details>`}`,
   };
 }
 

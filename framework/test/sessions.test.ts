@@ -63,7 +63,8 @@ it('the face shows sessions, and only an open session may poll', async () => {
   const open = await fetch(`${base}/sessions/${id}`);
   const text = await open.text();
   assert.match(text, /First answer/);
-  assert.match(text, /hello/);
+  assert.doesNotMatch(text, /hello/);
+  assert.match(text, new RegExp(`href="/pages/sessions/${id}/a"`));
   assert.match(text, new RegExp(`data-watch="session:${id}"`));
   assert.doesNotMatch(text, /<b>escaped/);
   assert.match(open.headers.get('content-security-policy')!, /connect-src 'self'/);
