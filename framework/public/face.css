@@ -121,6 +121,8 @@ td.number, th[data-type=number] { text-align: right; font-variant-numeric: tabul
 .member small { color: var(--muted); font-size: 14px; }
 .chips li.open { color: var(--good); border-color: var(--good); }
 .session-meta { margin: 8px 0 20px; }
+.session-notes { margin-top: 28px; }
+.session-notes summary { cursor: pointer; color: var(--muted); margin-bottom: 12px; }
 .note { background: var(--panel); border-left: 3px solid var(--line); border-radius: 0 10px 10px 0; padding: 10px 16px; margin: 14px 0; max-width: 820px; }
 .note small, .conclusion small { display: block; color: var(--muted); font-size: 13px; text-transform: capitalize; }
 .note.question { border-left-color: var(--accent); font-weight: 600; }
